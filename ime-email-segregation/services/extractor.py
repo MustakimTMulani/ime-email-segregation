@@ -60,121 +60,84 @@ def extract_cargo_vc(text):
 
     records = []
 
-    cargo_patterns = [
+    blocks = re.split(
+        r"\n\s*\n",
+        text
+    )
 
-        r"(\d[\d, -]*MTS.*?)(?:LP:|LOAD PORT)",
+    for block in blocks:
 
-        r"(Cargo:.*?)(?:POL:|LOAD PORT)",
+        block = block.strip()
 
-    ]
+        if not block:
+            continue
 
-    for pattern in cargo_patterns:
+        cargo_name = None
+        loading_port = None
+        discharge_port = None
+        laycan = None
 
-        matches = re.finditer(
-
-            pattern,
-
-            text,
-
-            re.IGNORECASE | re.DOTALL
-
+        cargo_match = re.search(
+            r"(?:mts|MTS)\s+(.*?)\s+(?:in bulk|bulk)",
+            block,
+            re.IGNORECASE
         )
 
-        for match in matches:
+        if cargo_match:
 
-            cargo_text = match.group(1)
-
-            loading_port = None
-            discharge_port = None
-            laycan = None
-            cargo_name = None
-
-            load_match = re.search(
-
-                r"(?:LOAD PORT|LP|POL)\s*:?\s*(.+)",
-
-                text,
-
-                re.IGNORECASE
-
+            cargo_name = (
+                cargo_match.group(1)
+                .replace("of ", "")
+                .strip()
             )
 
-            if load_match:
+        load_match = re.search(
+            r"(?:LOAD PORT|LP|POL)\s*:?\s*(.+)",
+            block,
+            re.IGNORECASE
+        )
 
-                loading_port = (
-                    load_match.group(1)
-                    .strip()
-                )
+        if load_match:
 
-            discharge_match = re.search(
+            loading_port = load_match.group(1).strip()
 
-                r"(?:DISCHARGE PORT|DP|POD)\s*:?\s*(.+)",
+        discharge_match = re.search(
+            r"(?:DISCHARGE PORT|DP|POD)\s*:?\s*(.+)",
+            block,
+            re.IGNORECASE
+        )
 
-                text,
+        if discharge_match:
 
-                re.IGNORECASE
-
+            discharge_port = (
+                discharge_match.group(1).strip()
             )
 
-            if discharge_match:
+        laycan_match = re.search(
+            r"(?:LAYCAN|LC)\s*:?\s*(.+)",
+            block,
+            re.IGNORECASE
+        )
 
-                discharge_port = (
-                    discharge_match.group(1)
-                    .strip()
-                )
+        if laycan_match:
 
-            laycan_match = re.search(
+            laycan = laycan_match.group(1).strip()
 
-                r"(?:LAYCAN|LC)\s*:?\s*(.+)",
-
-                text,
-
-                re.IGNORECASE
-
-            )
-
-            if laycan_match:
-
-                laycan = (
-                    laycan_match.group(1)
-                    .strip()
-                )
-
-            cargo_name_match = re.search(
-
-                r"(?:MTS|mts)\s+(.*?)\s+(?:in bulk|bulk)",
-
-                cargo_text,
-
-                re.IGNORECASE
-
-            )
-
-            if cargo_name_match:
-
-                cargo_name = (
-                    cargo_name_match.group(1)
-                    .strip()
-                )
+        if cargo_name:
 
             records.append({
 
                 "account_name": None,
 
-                "cargo_name":
-                cargo_name,
+                "cargo_name": cargo_name,
 
-                "cargo_type":
-                "Bulk",
+                "cargo_type": "Bulk",
 
-                "loading_port":
-                loading_port,
+                "loading_port": loading_port,
 
-                "discharge_port":
-                discharge_port,
+                "discharge_port": discharge_port,
 
-                "laycan":
-                laycan
+                "laycan": laycan
 
             })
 
