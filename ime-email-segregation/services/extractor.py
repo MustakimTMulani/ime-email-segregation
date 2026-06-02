@@ -82,13 +82,13 @@ def extract_tonnage(text):
 
     pattern1 = re.finditer(
 
-        r"MV\s+([A-Z0-9\s]+?)\s+DWT\s+(\d+)\s+OPEN\s+([A-Z\s,]+?)\s+O/A\s+([A-Z0-9\s\-]+)",
+    r"MV\s+([A-Z0-9\s]+?)\s+DWT\s+(\d+)\s+OPEN\s+([A-Z\s,]+?)\s+O/A\s+([^\n\r]+)",
 
-        text,
+    text,
 
-        re.IGNORECASE
+    re.IGNORECASE
 
-    )
+)
 
     for match in pattern1:
 
