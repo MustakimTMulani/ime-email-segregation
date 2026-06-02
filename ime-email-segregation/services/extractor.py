@@ -1,5 +1,23 @@
 import re
 
+def split_opportunities(text):
+
+    opportunities = re.split(
+
+        r"\n\s*(?=(?:CARGO:|\d[\d,\-\s]*\s*MTS|1\s*TCT|A/C|ACC))",
+
+        text,
+
+        flags=re.IGNORECASE
+
+    )
+
+    return [
+        block.strip()
+        for block in opportunities
+        if block.strip()
+    ]
+
 LOAD_PORT_LABELS = [
     "LOAD PORT",
     "LOADING PORT",
@@ -193,7 +211,9 @@ def extract_cargo_vc(text):
 
     records = []
 
-    blocks = re.split(r"\n\s*\n", text)
+    blocks = split_opportunities(
+    text
+    )
 
     for block in blocks:
 
@@ -294,11 +314,9 @@ def extract_cargo_tc(text):
 
     records = []
 
-    blocks = re.split(
-    r"(?=(?:A/C|ACC).{0,50}|1\s*TCT)",
-    text,
-    flags=re.IGNORECASE
-)
+    blocks = split_opportunities(
+    text
+    )
 
     for block in blocks:
 
