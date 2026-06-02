@@ -8,36 +8,38 @@ def classify_email(text):
 
     # TONNAGE
 
-    if "MV " in text:
-        tonnage_score += 1
+    if any(x in text for x in ["MV ", "DWT"]):
+     tonnage_score += 1
 
     if "OPEN" in text:
-        tonnage_score += 1
+     tonnage_score += 1
 
     if "DWT" in text:
-        tonnage_score += 1
+     tonnage_score += 1
 
-    # CARGO VC
+# CARGO VC
 
-    if "LOAD PORT" in text:
+    if any(x in text for x in ["LOAD PORT", "LP", "POL"]):
         cargo_vc_score += 1
 
-    if "DISCHARGE PORT" in text:
+    if any(x in text for x in ["DISCHARGE PORT", "DP", "POD"]):
         cargo_vc_score += 1
 
-    if "LAYCAN" in text:
-        cargo_vc_score += 1
+    if any(x in text for x in ["LAYCAN", "LC"]):
+     cargo_vc_score += 1
 
     # CARGO TC
 
-    if "DELIVERY" in text:
-        cargo_tc_score += 1
+# CARGO TC
 
-    if "REDELIVERY" in text:
-        cargo_tc_score += 1
+    if any(x in text for x in ["DELIVERY", "DELY"]):
+     cargo_tc_score += 1
+
+    if any(x in text for x in ["REDELIVERY", "REDEL"]):
+     cargo_tc_score += 1
 
     if "DURATION" in text:
-        cargo_tc_score += 1
+     cargo_tc_score += 1
 
     scores = {
         "Tonnage": tonnage_score,

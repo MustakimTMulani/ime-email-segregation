@@ -1,69 +1,199 @@
 import re
 
+LOAD_PORT_LABELS = [
+    "LOAD PORT",
+    "LOADING PORT",
+    "LP",
+    "POL"
+]
+
+DISCHARGE_PORT_LABELS = [
+    "DISCHARGE PORT",
+    "DISCHARGING PORT",
+    "DP",
+    "POD"
+]
+
+LAYCAN_LABELS = [
+    "LAYCAN",
+    "LC"
+]
+
+def extract_account_name(text):
+
+    patterns = [
+
+    r"([A-Z][A-Z\s]+MARITIME\s+(?:INC|LTD|LLC|CO))",
+
+    r"([A-Z][A-Z\s]+SHIPPING\s+(?:INC|LTD|LLC|CO))",
+
+    r"([A-Z][A-Z\s]+CHARTERING\s+(?:INC|LTD|LLC|CO))",
+
+    r"([A-Z][A-Z\s]+LOGISTICS\s+(?:INC|LTD|LLC|CO))",
+
+    r"([A-Z][A-Z\s]+TRADING\s+(?:INC|LTD|LLC|CO))"
+
+]
+
+    for pattern in patterns:
+
+        match = re.search(
+            pattern,
+            text,
+            re.IGNORECASE
+        )
+
+        if match:
+
+            return (
+                match.group(1)
+                .strip()
+            )
+
+    return None
+
 
 def extract_tonnage(text):
 
     records = []
 
-    account_name = None
+    account_name = extract_account_name(text)
 
-    account_match = re.search(
-        r"([A-Z\s]+MARITIME[A-Z\s]+)",
-        text,
-        re.IGNORECASE
-    )
+    # Pattern 1
+    # MV SHENG AN HAI DWT 56564 OPEN XIAMEN, CHINA O/A 2ND JUNE 2026
 
-    if account_match:
+    pattern1 = re.finditer(
 
-        account_name = (
-            account_match.group(1)
-            .strip()
-        )
-
-    pattern = re.finditer(
-
-        r"MV\s+([A-Z0-9\s]+?)\s+DWT\s+(\d+)\s+OPEN\s+([A-Z\s,]+?)\s+O/A\s+(.+)",
+        r"MV\s+([A-Z0-9\s]+?)\s+DWT\s+(\d+)\s+OPEN\s+([A-Z\s,]+?)\s+O/A\s+([A-Z0-9\s\-]+)",
 
         text,
 
         re.IGNORECASE
+
     )
 
-    for match in pattern:
+    for match in pattern1:
 
         records.append({
 
-            "account_name":
-            account_name,
+            "account_name": account_name,
 
-            "vessel_name":
-            match.group(1).strip(),
+            "vessel_name": match.group(1).strip(),
 
-            "vessel_size":
-            match.group(2).strip(),
+            "vessel_size": match.group(2).strip(),
 
-            "open_port":
-            match.group(3).strip(),
+            "open_port": match.group(3).strip(),
 
-            "open_date":
-            match.group(4).strip(),
+            "open_date": match.group(4).strip(),
 
-            "vessel_type":
-            "Bulk Carrier"
+            "vessel_type": "Bulk Carrier"
 
         })
+
+    # Pattern 2
+    # MV TRUE FRIEND/51K/09 - BEJAIA , 1ST JUNE
+
+    pattern2 = re.finditer(
+
+        r"MV\s+([A-Z0-9\s]+?)\/(\d+)K.*?-\s*([A-Z\s]+?)\s*,\s*([0-9A-Z\s]+)",
+
+        text,
+
+        re.IGNORECASE
+
+    )
+
+    for match in pattern2:
+
+        records.append({
+
+            "account_name": account_name,
+
+            "vessel_name": match.group(1).strip(),
+
+            "vessel_size": match.group(2).strip() + "K",
+
+            "open_port": match.group(3).strip(),
+
+            "open_date": match.group(4).strip(),
+
+            "vessel_type": "Bulk Carrier"
+
+        })
+
+    # Pattern 3
+    # MV BLUE STAR (38K DWT) - OPEN 25 MAY GABES, TUNISIA
+
+    pattern3 = re.finditer(
+
+        r"MV\s+([A-Z0-9\s]+?)\s+\((\d+)K\s+DWT\)\s*-\s*OPEN\s+([0-9A-Z\s]+)\s+([A-Z\s,]+)",
+
+        text,
+
+        re.IGNORECASE
+
+    )
+
+    for match in pattern3:
+
+        records.append({
+
+            "account_name": account_name,
+
+            "vessel_name": match.group(1).strip(),
+
+            "vessel_size": match.group(2).strip() + "K",
+
+            "open_date": match.group(3).strip(),
+
+            "open_port": match.group(4).strip(),
+
+            "vessel_type": "Bulk Carrier"
+
+        })
+
+
+
+    pattern4 = re.finditer(
+
+    r"^([A-Z][A-Z ]+?)\s+\((\d+)K.*?\)\s*[–-]\s*OPEN\s+([A-Z\s,]+?)\s+(\d{1,2}-\d{1,2}\s+[A-Z]+)",
+
+    text,
+
+    re.IGNORECASE | re.MULTILINE
+
+)
+
+    for match in pattern4:
+
+        records.append({
+
+        "account_name": account_name,
+
+        "vessel_name": match.group(1).strip(),
+
+        "vessel_size": match.group(2).strip() + "K",
+
+        "open_port": match.group(3).strip(),
+
+        "open_date": match.group(4).strip(),
+
+        "vessel_type": "Bulk Carrier"
+
+    })
 
     return records
 
 
 def extract_cargo_vc(text):
 
+    account_name = extract_account_name(
+    text
+)
+
     records = []
 
-    blocks = re.split(
-        r"\n\s*\n",
-        text
-    )
+    blocks = re.split(r"\n\s*\n", text)
 
     for block in blocks:
 
@@ -78,10 +208,18 @@ def extract_cargo_vc(text):
         laycan = None
 
         cargo_match = re.search(
-            r"(?:mts|MTS)\s+(.*?)\s+(?:in bulk|bulk)",
+          r"(?:mts|MTS)\s+(.*?)\s+(?:in bulk|bulk)",
             block,
             re.IGNORECASE
-        )
+)
+
+        if not cargo_match:
+
+         cargo_match = re.search(
+            r"\d[\d,\-\s]*\s*MTS\s+(.*?)(?:\n|$)",
+            block,
+            re.IGNORECASE
+    )
 
         if cargo_match:
 
@@ -92,7 +230,7 @@ def extract_cargo_vc(text):
             )
 
         load_match = re.search(
-            r"(?:LOAD PORT|LP|POL)\s*:?\s*(.+)",
+            rf"(?:{'|'.join(LOAD_PORT_LABELS)})\s*:?\s*(.+)",
             block,
             re.IGNORECASE
         )
@@ -102,7 +240,7 @@ def extract_cargo_vc(text):
             loading_port = load_match.group(1).strip()
 
         discharge_match = re.search(
-            r"(?:DISCHARGE PORT|DP|POD)\s*:?\s*(.+)",
+            rf"(?:{'|'.join(DISCHARGE_PORT_LABELS)})\s*:?\s*(.+)",
             block,
             re.IGNORECASE
         )
@@ -114,7 +252,7 @@ def extract_cargo_vc(text):
             )
 
         laycan_match = re.search(
-            r"(?:LAYCAN|LC)\s*:?\s*(.+)",
+            rf"(?:{'|'.join(LAYCAN_LABELS)})\s*:?\s*(.+)",
             block,
             re.IGNORECASE
         )
@@ -123,11 +261,15 @@ def extract_cargo_vc(text):
 
             laycan = laycan_match.group(1).strip()
 
-        if cargo_name:
+        if (
+            cargo_name
+            or loading_port
+            or discharge_port
+                ):
 
             records.append({
 
-                "account_name": None,
+                "account_name": account_name,
 
                 "cargo_name": cargo_name,
 
@@ -146,33 +288,132 @@ def extract_cargo_vc(text):
 
 def extract_cargo_tc(text):
 
-    result = {}
+    account_name = extract_account_name(
+    text
+)
 
-    delivery_match = re.search(
-        r"DELIVERY\s+(.+)",
-        text,
-        re.IGNORECASE
+    records = []
+
+    blocks = re.split(
+    r"(?=(?:A/C|ACC).{0,50}|1\s*TCT)",
+    text,
+    flags=re.IGNORECASE
+)
+
+    for block in blocks:
+
+        block = block.strip()
+
+        if not block:
+            continue
+
+        delivery_port = None
+        redelivery_port = None
+        duration = None
+        cargo_name = None
+        laycan = None
+
+        delivery_match = re.search(
+            r"(?:DELIVERY|DELY)\s*:?\s*(.+)",
+            block,
+            re.IGNORECASE
+        )
+
+        if delivery_match:
+
+            delivery_port = (
+                delivery_match.group(1)
+                .strip()
+            )
+
+        redelivery_match = re.search(
+            r"(?:REDELIVERY|REDEL)\s*:?\s*(.+)",
+            block,
+            re.IGNORECASE
+        )
+
+        if redelivery_match:
+
+            redelivery_port = (
+                redelivery_match.group(1)
+                .strip()
+            )
+
+        duration_match = re.search(
+            r"(?:DURATION)\s*:?\s*(.+)",
+            block,
+            re.IGNORECASE
+        )
+
+        if duration_match:
+
+            duration = (
+                duration_match.group(1)
+                .strip()
+            )
+
+        cargo_match = re.search(
+                 r"(?:CARGO|COMMODITY)\s*:?\s*(.+)",
+                 block,
+                re.IGNORECASE
+)
+
+        if not cargo_match:
+
+            cargo_match = re.search(
+              r"1\s*TCT\s*WITH\s*(.+)",
+            block,
+             re.IGNORECASE
     )
 
-    if delivery_match:
-        result["delivery_port"] = delivery_match.group(1).strip()
+        if cargo_match:
 
-    redelivery_match = re.search(
-        r"REDELIVERY\s+(.+)",
-        text,
-        re.IGNORECASE
-    )
+            cargo_name = (
+                cargo_match.group(1)
+                .strip()
+            )
 
-    if redelivery_match:
-        result["redelivery_port"] = redelivery_match.group(1).strip()
+        laycan_match = re.search(
+            rf"(?:{'|'.join(LAYCAN_LABELS)})\s*:?\s*(.+)",
+            block,
+            re.IGNORECASE
+        )
 
-    duration_match = re.search(
-        r"DURATION\s+(.+)",
-        text,
-        re.IGNORECASE
-    )
+        if laycan_match:
 
-    if duration_match:
-        result["duration"] = duration_match.group(1).strip()
+            laycan = (
+                laycan_match.group(1)
+                .strip()
+            )
 
-    return result
+        if (
+            delivery_port
+            or redelivery_port
+            or duration
+        ):
+
+            records.append({
+
+                "account_name": account_name,
+
+                "delivery_port":
+                delivery_port,
+
+                "redelivery_port":
+                redelivery_port,
+
+                "duration":
+                duration,
+
+                "cargo_name":
+                cargo_name,
+
+                "laycan":
+                laycan,
+
+                "cargo_type":
+                "Time Charter"
+
+            })
+
+    return records
