@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Stored Records</title>
+</head>
+
+<body>
+
+<h1>Stored Vessel Records</h1>
+
+<form method="GET">
+
+    <input
+        type="text"
+        name="search"
+        placeholder="Search vessel or port">
+
+    <button type="submit">
+        Search
+    </button>
+
+</form>
+
+<br>
+
+<table border="1">
+
+<tr>
+    <th>ID</th>
+    <th>Category</th>
+
+    <th>Vessel Name</th>
+    <th>Vessel Size</th>
+    <th>Open Port</th>
+
+    <th>Loading Port</th>
+    <th>Discharge Port</th>
+    <th>Laycan</th>
+
+    <th>Delivery Port</th>
+    <th>Redelivery Port</th>
+    <th>Duration</th>
+</tr>
+
+    {% for row in records %}
+
+<tr>
+    <td>{{ row.id }}</td>
+    <td>{{ row.category }}</td>
+
+    <td>{{ row.vessel_name }}</td>
+    <td>{{ row.vessel_size }}</td>
+    <td>{{ row.open_port }}</td>
+
+    <td>{{ row.loading_port }}</td>
+    <td>{{ row.discharge_port }}</td>
+    <td>{{ row.laycan }}</td>
+
+    <td>{{ row.delivery_port }}</td>
+    <td>{{ row.redelivery_port }}</td>
+    <td>{{ row.duration }}</td>
+</tr>
+
+    {% endfor %}
+
+</table>
+
+<br>
+
+<a href="/">Upload Another Email</a>
+
+</body>
+</html>

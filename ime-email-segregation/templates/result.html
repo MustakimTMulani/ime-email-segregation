@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Result</title>
+</head>
+<body>
+
+<h1>Classification Result</h1>
+
+<h2>Category: {{ category }}</h2>
+
+<h3>Extracted Data</h3>
+
+<ul>
+    {% for key, value in extracted_data.items() %}
+        <li>
+            <b>{{ key }}</b> : {{ value }}
+        </li>
+    {% endfor %}
+</ul>
+
+<a href="/">Upload Another Email</a>
+
+</body>
+</html>
