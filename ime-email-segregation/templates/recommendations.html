@@ -40,32 +40,87 @@ h1{
 </head>
 
 <body>
-
-<h1>Recommendations</h1>
+<h1 class="mb-4">
+    Smart Matching Recommendations
+</h1>
 
 {% for item in recommendations %}
 
-<div class="card">
+<div class="card shadow mb-3">
 
-    <p>
-        <strong>Category:</strong>
-        {{ item.category }}
-    </p>
+    <div class="card-body">
 
-    <p>
-        <strong>Cargo:</strong>
-        {{ item.cargo_name or "-" }}
-    </p>
+        <h4>
 
-    <p>
-        <strong>Vessel:</strong>
-        {{ item.vessel_name or "-" }}
-    </p>
+            {{ item.vessel }}
 
-    <p>
-        <strong>Recommendation:</strong>
-        {{ item.recommendation }}
-    </p>
+        </h4>
+
+        <p>
+
+            <strong>Cargo:</strong>
+            {{ item.cargo }}
+
+        </p>
+
+        <p>
+
+            <strong>Port:</strong>
+            {{ item.port }}
+
+        </p>
+
+        <p>
+
+            <strong>Match Score:</strong>
+
+            {% if item.score >= 80 %}
+
+                <span class="badge bg-success">
+                    {{ item.score }}%
+                </span>
+
+            {% elif item.score >= 50 %}
+
+                <span class="badge bg-warning text-dark">
+                    {{ item.score }}%
+                </span>
+
+            {% else %}
+
+                <span class="badge bg-danger">
+                    {{ item.score }}%
+                </span>
+
+            {% endif %}
+
+        </p>
+
+        <p>
+
+            Port Match:
+            {% if item.port_match %}✅{% else %}❌{% endif %}
+
+            &nbsp;&nbsp;
+
+            Size Match:
+            {% if item.size_match %}✅{% else %}❌{% endif %}
+
+            &nbsp;&nbsp;
+
+            Available:
+            {% if item.availability_match %}✅{% else %}❌{% endif %}
+
+        </p>
+
+        <h5>
+
+            Recommendation:
+            {{ item.recommendation }}
+
+        </h5>
+
+    </div>
 
 </div>
 

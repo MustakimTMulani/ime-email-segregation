@@ -175,25 +175,53 @@ def matches():
 
             matches.append({
 
-            "vessel": vessel.vessel_name,
+            "matched_vessel":
+            vessel.vessel_name,
 
-            "cargo_name": cargo.cargo_name,
+            "vessel_size":
+            vessel.vessel_size,
 
-            "cargo_port":
-                cargo.loading_port
-                or cargo.delivery_port,
+            "open_port":
+            vessel.open_port,
 
-            "port_match": port_match,
+            "matched_cargo":
+            cargo.cargo_name,
 
-            "size_match": size_match,
+            "cargo_category":
+            cargo.category,
 
-            "availability_match": availability_match,
+            "loading_port":
+            cargo.loading_port,
 
-            "criteria_met": criteria_met,
+            "delivery_port":
+            cargo.delivery_port,
 
-            "total_criteria": total_criteria,
+            "discharge_port":
+            cargo.discharge_port,
 
-            "score": score
+            "redelivery_port":
+            cargo.redelivery_port,
+
+            "duration":
+            cargo.duration,
+
+            "port_match":
+            port_match,
+
+            "size_match":
+            size_match,
+
+            "availability_match":
+            availability_match,
+
+            "criteria_met":
+            criteria_met,
+
+            "total_criteria":
+            total_criteria,
+
+            "score":
+            score
 
         })
 
@@ -211,55 +239,131 @@ def matches():
 @app.route("/recommendations")
 def recommendations():
 
-    records = EmailRecord.query.all()
+    vessels = EmailRecord.query.filter_by(
+        category="Tonnage"
+    ).all()
+
+    cargos = EmailRecord.query.filter(
+
+        (EmailRecord.category == "Cargo VC") |
+
+        (EmailRecord.category == "Cargo TC")
+
+    ).all()
 
     recommendations = []
 
-    for row in records:
+    for vessel in vessels:
 
-        recommendation = None
+        for cargo in cargos:
 
-        cargo = (
-            row.cargo_name.upper()
-            if row.cargo_name
-            else ""
-        )
+            criteria_met = 0
 
-        if cargo in [
-            "COAL",
-            "PETCOKE",
-            "GYPSUM",
-            "CLINKER",
-            "UREA",
-            "IRON SLAG"
-        ]:
+            total_criteria = 3
 
-            recommendation = "Bulk Carrier"
+            port_match = False
+            size_match = False
+            availability_match = True
 
-        elif row.category == "Tonnage":
-
-            recommendation = (
-                f"Available vessel at "
-                f"{row.open_port}"
+            cargo_port = (
+                cargo.loading_port
+                or cargo.delivery_port
             )
 
-        if recommendation:
+            if (
+                vessel.open_port
+                and cargo_port
+            ):
+
+                if (
+                    vessel.open_port.upper()
+                    ==
+                    cargo_port.upper()
+                ):
+
+                    port_match = True
+                    criteria_met += 1
+
+            if vessel.vessel_size:
+
+                try:
+
+                    dwt = int(
+                        vessel.vessel_size
+                    )
+
+                    if dwt >= 50000:
+
+                        size_match = True
+                        criteria_met += 1
+
+                except:
+                    pass
+
+            criteria_met += 1
+
+            score = int(
+                (criteria_met / total_criteria)
+                * 100
+            )
+
+            if score >= 80:
+
+                recommendation = "Strong Match"
+
+            elif score >= 50:
+
+                recommendation = "Potential Match"
+
+            else:
+
+                recommendation = "Low Priority"
 
             recommendations.append({
 
-                "category": row.category,
+                "vessel":
+                vessel.vessel_name,
 
-                "cargo_name": row.cargo_name,
+                "cargo":
+                cargo.cargo_name,
 
-                "vessel_name": row.vessel_name,
+                "port":
+                cargo_port,
 
-                "recommendation": recommendation
+                "score":
+                score,
+
+                "port_match":
+                port_match,
+
+                "size_match":
+                size_match,
+
+                "availability_match":
+                availability_match,
+
+                "recommendation":
+                recommendation
 
             })
 
+    recommendations = sorted(
+
+        recommendations,
+
+        key=lambda x: x["score"],
+
+        reverse=True
+
+    )
+
     return render_template(
+
         "recommendations.html",
-        recommendations=recommendations
+
+        recommendations=
+        recommendations
+
     )
 
 
