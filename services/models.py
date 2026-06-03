@@ -23,3 +23,5 @@ class EmailRecord(db.Model):
     delivery_port = db.Column(db.String(200))
     redelivery_port = db.Column(db.String(200))
     duration = db.Column(db.String(200))
+
+    full_extraction = db.Column(db.Text)

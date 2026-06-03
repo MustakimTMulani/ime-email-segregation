@@ -1,37 +1,110 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
 
-    <title>Smart Insights</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Smart Market Insights</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
+    <style>
+
+        body{
+            background:#f4f6f9;
+        }
+
+        .page-header{
+            background:white;
+            border-radius:15px;
+            padding:25px;
+            margin-bottom:25px;
+            box-shadow:0 2px 10px rgba(0,0,0,0.08);
+        }
+
+        .metric-card{
+            border:none;
+            border-radius:15px;
+            transition:.25s;
+            height:100%;
+        }
+
+        .metric-card:hover{
+            transform:translateY(-3px);
+        }
+
+        .metric-number{
+            font-size:2rem;
+            font-weight:700;
+        }
+
+        .section-card{
+            border:none;
+            border-radius:15px;
+        }
+
+        .insight-box{
+            border-left:5px solid #0d6efd;
+            background:#f8f9fa;
+            padding:15px;
+            border-radius:10px;
+        }
+
+        .recommendation-item{
+            padding:12px;
+            background:#f8f9fa;
+            border-radius:10px;
+            margin-bottom:10px;
+        }
+
+        .icon{
+            font-size:28px;
+            margin-bottom:10px;
+        }
+
+    </style>
+
 </head>
 
-<body class="bg-light">
+<body>
 
-<div class="container mt-5">
+<div class="container py-5">
 
-    <h1 class="mb-4">
+    <!-- Header -->
 
-        Smart Market Insights
+    <div class="page-header">
 
-    </h1>
+        <h1 class="mb-2">
+            Smart Market Insights
+        </h1>
 
-    <div class="row">
+        <p class="text-muted mb-0">
+            Market overview and opportunity analysis based on processed email data
+        </p>
+
+    </div>
+
+    <!-- KPI Cards -->
+
+    <div class="row g-4">
 
         <div class="col-md-3">
 
-            <div class="card shadow text-center">
+            <div class="card metric-card shadow-sm">
 
-                <div class="card-body">
+                <div class="card-body text-center">
 
-                    <h5>Total Records</h5>
+                    <div class="icon">📊</div>
 
-                    <h2>
+                    <h6 class="text-muted">
+                        Total Records
+                    </h6>
+
+                    <div class="metric-number text-primary">
                         {{ total_records }}
-                    </h2>
+                    </div>
 
                 </div>
 
@@ -41,15 +114,19 @@
 
         <div class="col-md-3">
 
-            <div class="card shadow text-center">
+            <div class="card metric-card shadow-sm">
 
-                <div class="card-body">
+                <div class="card-body text-center">
 
-                    <h5>Available Vessels</h5>
+                    <div class="icon">🚢</div>
 
-                    <h2>
+                    <h6 class="text-muted">
+                        Available Vessels
+                    </h6>
+
+                    <div class="metric-number text-success">
                         {{ total_vessels }}
-                    </h2>
+                    </div>
 
                 </div>
 
@@ -59,15 +136,19 @@
 
         <div class="col-md-3">
 
-            <div class="card shadow text-center">
+            <div class="card metric-card shadow-sm">
 
-                <div class="card-body">
+                <div class="card-body text-center">
 
-                    <h5>Cargo VC</h5>
+                    <div class="icon">📦</div>
 
-                    <h2>
+                    <h6 class="text-muted">
+                        Cargo VC
+                    </h6>
+
+                    <div class="metric-number text-info">
                         {{ total_vc }}
-                    </h2>
+                    </div>
 
                 </div>
 
@@ -77,15 +158,19 @@
 
         <div class="col-md-3">
 
-            <div class="card shadow text-center">
+            <div class="card metric-card shadow-sm">
 
-                <div class="card-body">
+                <div class="card-body text-center">
 
-                    <h5>Cargo TC</h5>
+                    <div class="icon">⚓</div>
 
-                    <h2>
+                    <h6 class="text-muted">
+                        Cargo TC
+                    </h6>
+
+                    <div class="metric-number text-warning">
                         {{ total_tc }}
-                    </h2>
+                    </div>
 
                 </div>
 
@@ -95,72 +180,82 @@
 
     </div>
 
-    <div class="card shadow mt-4">
+    <!-- Key Insight -->
+
+    <div class="card section-card shadow-sm mt-4">
 
         <div class="card-body">
 
-            <h4>
-
+            <h4 class="mb-3">
                 Key Insight
-
             </h4>
 
-            <p>
+            <div class="insight-box">
 
-                <strong>
-                    Most Active Port:
-                </strong>
+                <p class="mb-2">
 
-                {{ most_active_port }}
+                    <strong>
+                        Most Active Port:
+                    </strong>
 
-            </p>
+                    {{ most_active_port }}
 
-            <p>
+                </p>
 
-                The system has identified this port as the most frequently appearing location across uploaded vessel and cargo opportunities.
+                <p class="mb-0">
 
-            </p>
+                    The system has identified this port as the most frequently occurring location across vessel positions and cargo opportunities.
+
+                </p>
+
+            </div>
 
         </div>
 
     </div>
 
-    <div class="card shadow mt-4">
+    <!-- Recommendations -->
+
+    <div class="card section-card shadow-sm mt-4">
 
         <div class="card-body">
 
-            <h4>
-
+            <h4 class="mb-3">
                 Recommendations
-
             </h4>
 
-            <ul>
+            <div class="recommendation-item">
 
-                <li>
-                    Monitor opportunities around
-                    <strong>{{ most_active_port }}</strong>
-                </li>
+                Monitor opportunities around
+                <strong>{{ most_active_port }}</strong>
 
-                <li>
-                    Prioritize vessels and cargoes with matching ports
-                </li>
+            </div>
 
-                <li>
-                    Focus on high-scoring matches in the Matching Engine
-                </li>
+            <div class="recommendation-item">
 
-                <li>
-                    Use Dashboard analytics for market monitoring
-                </li>
+                Prioritize vessels and cargoes operating in matching ports
 
-            </ul>
+            </div>
+
+            <div class="recommendation-item">
+
+                Focus on high-scoring opportunities generated by the Matching Engine
+
+            </div>
+
+            <div class="recommendation-item">
+
+                Use dashboard analytics to monitor market activity trends
+
+            </div>
 
         </div>
 
     </div>
 
-    <div class="mt-4">
+    <!-- Navigation -->
+
+    <div class="mt-4 d-flex gap-2 flex-wrap">
 
         <a href="/" class="btn btn-primary">
             Home
@@ -183,5 +278,4 @@
 </div>
 
 </body>
-
 </html>

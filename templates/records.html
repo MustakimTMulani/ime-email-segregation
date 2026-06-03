@@ -1,105 +1,85 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
 
-    <title>Stored Records</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Extracted Maritime Records</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
     <style>
 
-        body {
-            font-family: Arial, sans-serif;
-            margin: 40px;
-            background: #f4f6f9;
+        body{
+            background:#f4f6f9;
         }
 
-        h1 {
-            color: #2c3e50;
+        .page-header{
+            background:white;
+            border-radius:15px;
+            padding:25px;
+            margin-bottom:25px;
+            box-shadow:0 2px 10px rgba(0,0,0,0.08);
         }
 
-        .search-box {
-            margin-bottom: 20px;
+        .summary-card{
+            border:none;
+            border-radius:15px;
         }
 
-        input[type=text] {
-            padding: 10px;
-            width: 300px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
+        .metric-number{
+            font-size:2rem;
+            font-weight:700;
+            color:#0d6efd;
         }
 
-        button {
-            padding: 10px 15px;
-            background: #3498db;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
+        .search-card{
+            border:none;
+            border-radius:15px;
         }
 
-        button:hover {
-            background: #2980b9;
+        .table-card{
+            border:none;
+            border-radius:15px;
+            overflow:hidden;
         }
 
-        .summary {
-            background: white;
-            padding: 15px;
-            margin-bottom: 20px;
-            border-radius: 10px;
-            box-shadow: 0px 2px 8px rgba(0,0,0,0.1);
-            width: 220px;
+        .table thead{
+            background:#0d6efd;
+            color:white;
         }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            background: white;
-            box-shadow: 0px 2px 8px rgba(0,0,0,0.1);
+        .table th{
+            white-space:nowrap;
+            vertical-align:middle;
         }
 
-        th {
-            background: #3498db;
-            color: white;
-            padding: 12px;
+        .table td{
+            vertical-align:middle;
+            white-space:nowrap;
         }
 
-        td {
-            padding: 10px;
-            border-bottom: 1px solid #ddd;
-            text-align: center;
+        .badge-custom{
+            font-size:12px;
+            padding:8px 10px;
         }
 
-        tr:hover {
-            background: #f8f9fa;
+        .badge-tc{
+            background:#198754;
         }
 
-        .badge {
-            color: white;
-            padding: 5px 10px;
-            border-radius: 5px;
-            font-size: 12px;
+        .badge-vc{
+            background:#fd7e14;
         }
 
-        .tc {
-            background: #27ae60;
+        .badge-tonnage{
+            background:#6f42c1;
         }
 
-        .vc {
-            background: #f39c12;
-        }
-
-        .tonnage {
-            background: #8e44ad;
-        }
-
-        .btn {
-            display: inline-block;
-            margin-top: 20px;
-            padding: 10px 15px;
-            background: #3498db;
-            color: white;
-            text-decoration: none;
-            border-radius: 5px;
+        .table-hover tbody tr:hover{
+            background:#f8f9fa;
         }
 
     </style>
@@ -108,129 +88,285 @@
 
 <body>
 
-    <h1>Stored Vessel Records</h1>
+<div class="container py-5">
 
-    <div class="summary">
+    <!-- Header -->
 
-        <h3>Total Records</h3>
+    <div class="page-header">
 
-        <h2>{{ records|length }}</h2>
+        <h1 class="mb-2">
+            Extracted Maritime Records
+        </h1>
+
+        <p class="text-muted mb-0">
+            View, search and manage extracted vessel and cargo opportunities
+        </p>
 
     </div>
 
-    <form method="GET" class="search-box">
+    <!-- Summary -->
 
-        <input
-            type="text"
-            name="search"
-            placeholder="Search vessel, cargo or port">
+    <div class="row mb-4">
 
-        <button type="submit">
+        <div class="col-md-3">
 
-            Search
+            <div class="card summary-card shadow-sm">
 
-        </button>
+                <div class="card-body text-center">
 
-    </form>
+                    <h6 class="text-muted">
+                        Total Records
+                    </h6>
 
-    <table>
+                    <div class="metric-number">
+                        {{ records|length }}
+                    </div>
 
-        <tr>
+                </div>
 
-            <th>ID</th>
-            <th>Category</th>
-            <th>Cargo Name</th>
+            </div>
 
-            <th>Vessel Name</th>
-            <th>Vessel Size</th>
-            <th>Open Port</th>
+        </div>
 
-            <th>Loading Port</th>
-            <th>Discharge Port</th>
-            <th>Laycan</th>
+    </div>
 
-            <th>Delivery Port</th>
-            <th>Redelivery Port</th>
-            <th>Duration</th>
-            <th>Actions</th>
+    <!-- Search -->
 
-        </tr>
+    <div class="card search-card shadow-sm mb-4">
 
-        {% for row in records %}
+        <div class="card-body">
 
-        <tr>
+            <form method="GET">
 
-            <td>{{ row.id }}</td>
+                <div class="row g-2">
 
-            <td>
+                    <div class="col-md-8">
 
-                {% if row.category == "Cargo TC" %}
+                        <input
+                            type="text"
+                            name="search"
+                            class="form-control"
+                            placeholder="Search vessel, cargo, port or category">
 
-                    <span class="badge tc">
-                        Cargo TC
-                    </span>
+                    </div>
 
-                {% elif row.category == "Cargo VC" %}
+                    <div class="col-md-2">
 
-                    <span class="badge vc">
-                        Cargo VC
-                    </span>
+                        <button
+                            type="submit"
+                            class="btn btn-primary w-100">
 
-                {% elif row.category == "Tonnage" %}
+                            Search
 
-                    <span class="badge tonnage">
-                        Tonnage
-                    </span>
+                        </button>
 
-                {% else %}
+                    </div>
 
-                    {{ row.category }}
+                    <div class="col-md-2">
 
-                {% endif %}
+                        <a
+                            href="/records"
+                            class="btn btn-secondary w-100">
 
-            </td>
-            
-            <td>{{ row.cargo_name or "-" }}</td>
-            <td>{{ row.vessel_name or "-" }}</td>
-            <td>{{ row.vessel_size or "-" }}</td>
-            <td>{{ row.open_port or "-" }}</td>
+                            Reset
 
-            <td>{{ row.loading_port or "-" }}</td>
-            <td>{{ row.discharge_port or "-" }}</td>
-            <td>{{ row.laycan or "-" }}</td>
+                        </a>
 
-            <td>{{ row.delivery_port or "-" }}</td>
-            <td>{{ row.redelivery_port or "-" }}</td>
-            <td>{{ row.duration or "-" }}</td>
-            
-            <td>
+                    </div>
 
-    <a
-        href="/delete/{{ row.id }}"
-        class="btn btn-danger btn-sm"
-        onclick="return confirm('Delete this record?')">
+                </div>
 
-        Delete
+            </form>
 
-    </a>
+        </div>
 
+    </div>
 
-    
+    <!-- Delete All -->
 
-</td>
+    <div class="mb-3">
 
+        <form
+            action="/delete-all"
+            method="POST"
+            style="display:inline;">
 
-        </tr>
+            <button
+                type="submit"
+                class="btn btn-danger"
+                onclick="return confirm('Delete ALL records? This cannot be undone.')">
 
-        {% endfor %}
+                Delete All Records
 
-    </table>
+            </button>
 
-    <a href="/" class="btn">
+        </form>
 
-        Upload Another Email
+    </div>
 
-    </a>
+    <!-- Records Table -->
+
+    <div class="card table-card shadow-sm">
+
+        <div class="card-body p-0">
+
+            <div class="table-responsive">
+
+                <table class="table table-hover table-bordered mb-0">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>ID</th>
+                            <th>Category</th>
+                            <th>Cargo Name</th>
+                            <th>Vessel Name</th>
+                            <th>Vessel Size</th>
+                            <th>Open Port</th>
+                            <th>Loading Port</th>
+                            <th>Discharge Port</th>
+                            <th>Laycan</th>
+                            <th>Delivery Port</th>
+                            <th>Redelivery Port</th>
+                            <th>Duration</th>
+                            <th style="min-width:150px;">
+                                Actions
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                    {% if records %}
+
+                    {% for row in records %}
+
+                        <tr>
+
+                            <td>{{ row.id }}</td>
+
+                            <td>
+
+                                {% if row.category == "Cargo TC" %}
+
+                                    <span class="badge badge-custom badge-tc">
+                                        Cargo TC
+                                    </span>
+
+                                {% elif row.category == "Cargo VC" %}
+
+                                    <span class="badge badge-custom badge-vc">
+                                        Cargo VC
+                                    </span>
+
+                                {% elif row.category == "Tonnage" %}
+
+                                    <span class="badge badge-custom badge-tonnage">
+                                        Tonnage
+                                    </span>
+
+                                {% else %}
+
+                                    {{ row.category }}
+
+                                {% endif %}
+
+                            </td>
+
+                            <td>{{ row.cargo_name or "-" }}</td>
+                            <td>{{ row.vessel_name or "-" }}</td>
+                            <td>{{ row.vessel_size or "-" }}</td>
+                            <td>{{ row.open_port or "-" }}</td>
+                            <td>{{ row.loading_port or "-" }}</td>
+                            <td>{{ row.discharge_port or "-" }}</td>
+                            <td>{{ row.laycan or "-" }}</td>
+                            <td>{{ row.delivery_port or "-" }}</td>
+                            <td>{{ row.redelivery_port or "-" }}</td>
+                            <td>{{ row.duration or "-" }}</td>
+
+                            <td>
+
+                                <div class="d-flex gap-1 justify-content-center">
+
+                                    <a href="/details/{{ row.id }}"
+                                    class="btn btn-info btn-sm">
+                                    Details
+                                    </a>
+
+                                    <form
+                                        action="/delete/{{ row.id }}"
+                                        method="POST"
+                                        style="display:inline;">
+
+                                        <button
+                                            type="submit"
+                                            class="btn btn-danger btn-sm"
+                                            onclick="return confirm('Delete this record?')">
+
+                                            Delete
+
+                                        </button>
+
+                                    </form>
+
+                                </div>
+
+                            </td>
+
+                        </tr>
+
+                    {% endfor %}
+
+                    {% else %}
+
+                        <tr>
+
+                            <td colspan="13" class="text-center p-4">
+
+                                No records found.
+
+                            </td>
+
+                        </tr>
+
+                    {% endif %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Navigation -->
+
+    <div class="mt-4 d-flex gap-2 flex-wrap">
+
+        <a href="/" class="btn btn-primary">
+            Upload Email
+        </a>
+
+        <a href="/dashboard" class="btn btn-success">
+            Dashboard
+        </a>
+
+        <a href="/recommendations" class="btn btn-info text-white">
+            Smart Insights
+        </a>
+
+        <a href="/matches" class="btn btn-warning">
+            Smart Matching Engine
+        </a>
+
+    </div>
+
+</div>
 
 </body>
 

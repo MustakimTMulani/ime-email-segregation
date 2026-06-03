@@ -56,6 +56,34 @@ def records():
         records=data
     )
 
+import json
+
+@app.route("/details/<int:record_id>")
+def details(record_id):
+
+    record = EmailRecord.query.get_or_404(
+        record_id
+    )
+
+    extraction_data = {}
+
+    if record.full_extraction:
+
+        try:
+
+            extraction_data = json.loads(
+                record.full_extraction
+            )
+
+        except:
+            extraction_data = {}
+
+    return render_template(
+        "details.html",
+        record=record,
+        extraction_data=extraction_data
+    )
+
 
 @app.route("/dashboard")
 def dashboard():
@@ -239,7 +267,7 @@ def matches():
     )
 
 
-@app.route("/delete/<int:record_id>")
+@app.route("/delete/<int:record_id>", methods=["POST"])
 def delete_record(record_id):
 
     record = EmailRecord.query.get_or_404(
@@ -252,7 +280,7 @@ def delete_record(record_id):
 
     return redirect("/records")
 
-@app.route("/delete-all")
+@app.route("/delete-all", methods=["POST"])
 def delete_all():
 
     EmailRecord.query.delete()
@@ -510,12 +538,13 @@ def upload():
         for item in extracted_data:
 
             record = EmailRecord(
-                category=category,
-                raw_email=text,
-                vessel_name=item.get("vessel_name"),
-                vessel_size=item.get("vessel_size"),
-                open_port=item.get("open_port")
-            )
+            category=category,
+            raw_email=text,
+            vessel_name=item.get("vessel_name"),
+            vessel_size=item.get("vessel_size"),
+            open_port=item.get("open_port"),
+            laycan=item.get("laycan")
+        )
 
             db.session.add(record)
 
@@ -527,18 +556,19 @@ def upload():
 
         for item in extracted_data:
 
-         record = EmailRecord(
-            category=category,
-            raw_email=text,
-            cargo_name=item.get("cargo_name"),
-            loading_port=item.get("loading_port"),
-            discharge_port=item.get("discharge_port"),
-            laycan=item.get("laycan")
-        )
+            record = EmailRecord(
+                category=category,
+                raw_email=text,
+                cargo_name=item.get("cargo_name"),
+                loading_port=item.get("loading_port"),
+                discharge_port=item.get("discharge_port"),
+                laycan=item.get("laycan")
+            )
 
-         db.session.add(record)
+            db.session.add(record)
 
         db.session.commit()
+
 
     elif category == "Cargo TC":
 
@@ -552,8 +582,9 @@ def upload():
                 cargo_name=item.get("cargo_name"),
                 delivery_port=item.get("delivery_port"),
                 redelivery_port=item.get("redelivery_port"),
-                duration=item.get("duration")
-)
+                duration=item.get("duration"),
+                laycan=item.get("laycan")
+            )
 
             db.session.add(record)
 
