@@ -543,7 +543,8 @@ def upload():
             vessel_name=item.get("vessel_name"),
             vessel_size=item.get("vessel_size"),
             open_port=item.get("open_port"),
-            laycan=item.get("laycan")
+            laycan=item.get("laycan"),
+            full_extraction=json.dumps(item)
         )
 
             db.session.add(record)
@@ -557,13 +558,14 @@ def upload():
         for item in extracted_data:
 
             record = EmailRecord(
-                category=category,
-                raw_email=text,
-                cargo_name=item.get("cargo_name"),
-                loading_port=item.get("loading_port"),
-                discharge_port=item.get("discharge_port"),
-                laycan=item.get("laycan")
-            )
+            category=category,
+            raw_email=text,
+            cargo_name=item.get("cargo_name"),
+            loading_port=item.get("loading_port"),
+            discharge_port=item.get("discharge_port"),
+            laycan=item.get("laycan"),
+            full_extraction=json.dumps(item)
+        )
 
             db.session.add(record)
 
@@ -577,14 +579,15 @@ def upload():
         for item in extracted_data:
 
             record = EmailRecord(
-                category=category,
-                raw_email=text,
-                cargo_name=item.get("cargo_name"),
-                delivery_port=item.get("delivery_port"),
-                redelivery_port=item.get("redelivery_port"),
-                duration=item.get("duration"),
-                laycan=item.get("laycan")
-            )
+            category=category,
+            raw_email=text,
+            cargo_name=item.get("cargo_name"),
+            delivery_port=item.get("delivery_port"),
+            redelivery_port=item.get("redelivery_port"),
+            duration=item.get("duration"),
+            laycan=item.get("laycan"),
+            full_extraction=json.dumps(item)
+        )
 
             db.session.add(record)
 
