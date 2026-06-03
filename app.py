@@ -7,6 +7,8 @@ from services.extractor import (
 )
 from services.models import db, EmailRecord
 from services.pdf_reader import extract_pdf_text
+from flask import redirect
+
 
 app = Flask(__name__)
 
@@ -236,136 +238,91 @@ def matches():
         matches=matches
     )
 
+
+@app.route("/delete/<int:record_id>")
+def delete_record(record_id):
+
+    record = EmailRecord.query.get_or_404(
+        record_id
+    )
+
+    db.session.delete(record)
+
+    db.session.commit()
+
+    return redirect("/records")
+
+@app.route("/delete-all")
+def delete_all():
+
+    EmailRecord.query.delete()
+
+    db.session.commit()
+
+    return redirect("/records")
+
+
+from collections import Counter
+
 @app.route("/recommendations")
 def recommendations():
 
-    vessels = EmailRecord.query.filter_by(
+    records = EmailRecord.query.all()
+
+    total_records = len(records)
+
+    total_vessels = EmailRecord.query.filter_by(
         category="Tonnage"
-    ).all()
+    ).count()
 
-    cargos = EmailRecord.query.filter(
+    total_vc = EmailRecord.query.filter_by(
+        category="Cargo VC"
+    ).count()
 
-        (EmailRecord.category == "Cargo VC") |
+    total_tc = EmailRecord.query.filter_by(
+        category="Cargo TC"
+    ).count()
 
-        (EmailRecord.category == "Cargo TC")
+    ports = []
 
-    ).all()
+    for record in records:
 
-    recommendations = []
+        if record.open_port:
+            ports.append(record.open_port)
 
-    for vessel in vessels:
+        if record.loading_port:
+            ports.append(record.loading_port)
 
-        for cargo in cargos:
+        if record.delivery_port:
+            ports.append(record.delivery_port)
 
-            criteria_met = 0
+        if record.discharge_port:
+            ports.append(record.discharge_port)
 
-            total_criteria = 3
+    most_active_port = "-"
 
-            port_match = False
-            size_match = False
-            availability_match = True
+    if ports:
 
-            cargo_port = (
-                cargo.loading_port
-                or cargo.delivery_port
-            )
-
-            if (
-                vessel.open_port
-                and cargo_port
-            ):
-
-                if (
-                    vessel.open_port.upper()
-                    ==
-                    cargo_port.upper()
-                ):
-
-                    port_match = True
-                    criteria_met += 1
-
-            if vessel.vessel_size:
-
-                try:
-
-                    dwt = int(
-                        vessel.vessel_size
-                    )
-
-                    if dwt >= 50000:
-
-                        size_match = True
-                        criteria_met += 1
-
-                except:
-                    pass
-
-            criteria_met += 1
-
-            score = int(
-                (criteria_met / total_criteria)
-                * 100
-            )
-
-            if score >= 80:
-
-                recommendation = "Strong Match"
-
-            elif score >= 50:
-
-                recommendation = "Potential Match"
-
-            else:
-
-                recommendation = "Low Priority"
-
-            recommendations.append({
-
-                "vessel":
-                vessel.vessel_name,
-
-                "cargo":
-                cargo.cargo_name,
-
-                "port":
-                cargo_port,
-
-                "score":
-                score,
-
-                "port_match":
-                port_match,
-
-                "size_match":
-                size_match,
-
-                "availability_match":
-                availability_match,
-
-                "recommendation":
-                recommendation
-
-            })
-
-    recommendations = sorted(
-
-        recommendations,
-
-        key=lambda x: x["score"],
-
-        reverse=True
-
-    )
+        most_active_port = Counter(
+            ports
+        ).most_common(1)[0][0]
 
     return render_template(
 
         "recommendations.html",
 
-        recommendations=
-        recommendations
+        total_records=total_records,
+
+        total_vessels=total_vessels,
+
+        total_vc=total_vc,
+
+        total_tc=total_tc,
+
+        most_active_port=
+        most_active_port
 
     )
-
 
 
 @app.route("/api-test")

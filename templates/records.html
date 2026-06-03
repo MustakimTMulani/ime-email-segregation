@@ -152,6 +152,7 @@
             <th>Delivery Port</th>
             <th>Redelivery Port</th>
             <th>Duration</th>
+            <th>Actions</th>
 
         </tr>
 
@@ -201,6 +202,23 @@
             <td>{{ row.delivery_port or "-" }}</td>
             <td>{{ row.redelivery_port or "-" }}</td>
             <td>{{ row.duration or "-" }}</td>
+            
+            <td>
+
+    <a
+        href="/delete/{{ row.id }}"
+        class="btn btn-danger btn-sm"
+        onclick="return confirm('Delete this record?')">
+
+        Delete
+
+    </a>
+
+
+    
+
+</td>
+
 
         </tr>
 
