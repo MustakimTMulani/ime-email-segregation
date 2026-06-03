@@ -29,17 +29,19 @@ def records():
 
         data = EmailRecord.query.filter(
 
-         (EmailRecord.vessel_name.contains(search)) |
+        (EmailRecord.cargo_name.contains(search)) |
 
-         (EmailRecord.open_port.contains(search)) |
+        (EmailRecord.vessel_name.contains(search)) |
 
-         (EmailRecord.loading_port.contains(search)) |
+        (EmailRecord.open_port.contains(search)) |
 
-         (EmailRecord.discharge_port.contains(search)) |
+        (EmailRecord.loading_port.contains(search)) |
 
-         (EmailRecord.delivery_port.contains(search)) |
+        (EmailRecord.discharge_port.contains(search)) |
 
-         (EmailRecord.redelivery_port.contains(search))
+        (EmailRecord.delivery_port.contains(search)) |
+
+        (EmailRecord.redelivery_port.contains(search))
 
     ).all()
 
@@ -106,8 +108,12 @@ def matches():
         category="Tonnage"
     ).all()
 
-    cargos = EmailRecord.query.filter_by(
-        category="Cargo VC"
+    cargos = EmailRecord.query.filter(
+
+    (EmailRecord.category == "Cargo VC") |
+
+    (EmailRecord.category == "Cargo TC")
+
     ).all()
 
     matches = []
@@ -169,31 +175,27 @@ def matches():
 
             matches.append({
 
-                "vessel":
-                vessel.vessel_name,
+            "vessel": vessel.vessel_name,
 
-                "cargo_port":
-                cargo.loading_port,
+            "cargo_name": cargo.cargo_name,
 
-                "port_match":
-                port_match,
+            "cargo_port":
+                cargo.loading_port
+                or cargo.delivery_port,
 
-                "size_match":
-                size_match,
+            "port_match": port_match,
 
-                "availability_match":
-                availability_match,
+            "size_match": size_match,
 
-                "criteria_met":
-                criteria_met,
+            "availability_match": availability_match,
 
-                "total_criteria":
-                total_criteria,
+            "criteria_met": criteria_met,
 
-                "score":
-                score
+            "total_criteria": total_criteria,
 
-            })
+            "score": score
+
+        })
 
     matches = sorted(
         matches,
@@ -205,6 +207,61 @@ def matches():
         "matches.html",
         matches=matches
     )
+
+@app.route("/recommendations")
+def recommendations():
+
+    records = EmailRecord.query.all()
+
+    recommendations = []
+
+    for row in records:
+
+        recommendation = None
+
+        cargo = (
+            row.cargo_name.upper()
+            if row.cargo_name
+            else ""
+        )
+
+        if cargo in [
+            "COAL",
+            "PETCOKE",
+            "GYPSUM",
+            "CLINKER",
+            "UREA",
+            "IRON SLAG"
+        ]:
+
+            recommendation = "Bulk Carrier"
+
+        elif row.category == "Tonnage":
+
+            recommendation = (
+                f"Available vessel at "
+                f"{row.open_port}"
+            )
+
+        if recommendation:
+
+            recommendations.append({
+
+                "category": row.category,
+
+                "cargo_name": row.cargo_name,
+
+                "vessel_name": row.vessel_name,
+
+                "recommendation": recommendation
+
+            })
+
+    return render_template(
+        "recommendations.html",
+        recommendations=recommendations
+    )
+
 
 
 @app.route("/api-test")
@@ -369,61 +426,76 @@ def upload():
 
     if existing:
 
-        return render_template(
-            "result.html",
-            category="Duplicate Email",
-            extracted_data={
+     return render_template(
+        "result.html",
+        category="Duplicate Email",
+        extracted_data=[
+            {
                 "message": "This email already exists."
             }
-        )
+        ]
+    )
 
-    category = classify_email(text)
+    classification = classify_email(text)
 
-    extracted_data = {}
+    category = classification["category"]
+
+    extracted_data = []
 
     if category == "Tonnage":
 
         extracted_data = extract_tonnage(text)
 
-        record = EmailRecord(
-            category=category,
-            raw_email=text,
-            vessel_name=extracted_data.get("vessel_name"),
-            vessel_size=extracted_data.get("vessel_size"),
-            open_port=extracted_data.get("open_port")
-        )
+        for item in extracted_data:
 
-        db.session.add(record)
+            record = EmailRecord(
+                category=category,
+                raw_email=text,
+                vessel_name=item.get("vessel_name"),
+                vessel_size=item.get("vessel_size"),
+                open_port=item.get("open_port")
+            )
+
+            db.session.add(record)
+
         db.session.commit()
 
     elif category == "Cargo VC":
 
         extracted_data = extract_cargo_vc(text)
 
-        record = EmailRecord(
+        for item in extracted_data:
+
+         record = EmailRecord(
             category=category,
             raw_email=text,
-            loading_port=extracted_data.get("loading_port"),
-            discharge_port=extracted_data.get("discharge_port"),
-            laycan=extracted_data.get("laycan")
+            cargo_name=item.get("cargo_name"),
+            loading_port=item.get("loading_port"),
+            discharge_port=item.get("discharge_port"),
+            laycan=item.get("laycan")
         )
 
-        db.session.add(record)
+         db.session.add(record)
+
         db.session.commit()
 
     elif category == "Cargo TC":
 
         extracted_data = extract_cargo_tc(text)
 
-        record = EmailRecord(
-            category=category,
-            raw_email=text,
-            delivery_port=extracted_data.get("delivery_port"),
-            redelivery_port=extracted_data.get("redelivery_port"),
-            duration=extracted_data.get("duration")
-        )
+        for item in extracted_data:
 
-        db.session.add(record)
+            record = EmailRecord(
+                category=category,
+                raw_email=text,
+                cargo_name=item.get("cargo_name"),
+                delivery_port=item.get("delivery_port"),
+                redelivery_port=item.get("redelivery_port"),
+                duration=item.get("duration")
+)
+
+            db.session.add(record)
+
         db.session.commit()
 
     return render_template(

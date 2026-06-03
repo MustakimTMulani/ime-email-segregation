@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<title>Recommendations</title>
+
+<style>
+
+body{
+    font-family:Arial,sans-serif;
+    margin:40px;
+    background:#f4f6f9;
+}
+
+.card{
+    background:white;
+    padding:20px;
+    margin-bottom:20px;
+    border-radius:10px;
+    box-shadow:0px 2px 8px rgba(0,0,0,0.1);
+}
+
+h1{
+    color:#2c3e50;
+}
+
+.btn{
+    display:inline-block;
+    margin-top:20px;
+    padding:10px 15px;
+    background:#3498db;
+    color:white;
+    text-decoration:none;
+    border-radius:5px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<h1>Recommendations</h1>
+
+{% for item in recommendations %}
+
+<div class="card">
+
+    <p>
+        <strong>Category:</strong>
+        {{ item.category }}
+    </p>
+
+    <p>
+        <strong>Cargo:</strong>
+        {{ item.cargo_name or "-" }}
+    </p>
+
+    <p>
+        <strong>Vessel:</strong>
+        {{ item.vessel_name or "-" }}
+    </p>
+
+    <p>
+        <strong>Recommendation:</strong>
+        {{ item.recommendation }}
+    </p>
+
+</div>
+
+{% endfor %}
+
+<a href="/" class="btn">
+    Back Home
+</a>
+
+</body>
+
+</html>

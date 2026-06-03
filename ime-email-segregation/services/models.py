@@ -10,6 +10,8 @@ class EmailRecord(db.Model):
 
     raw_email = db.Column(db.Text)
 
+    cargo_name = db.Column(db.String(200))
+    
     vessel_name = db.Column(db.String(200))
     vessel_size = db.Column(db.String(100))
     open_port = db.Column(db.String(200))

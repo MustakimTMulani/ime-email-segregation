@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
 
     <title>IME Email Segregation System</title>
@@ -12,19 +13,23 @@
 
 <div class="container mt-5">
 
-    <div class="card shadow">
+    <div class="card shadow-lg">
 
-        <div class="card-body">
+        <div class="card-body p-5">
 
-            <h1 class="text-center mb-4">
+            <h1 class="text-center text-primary mb-3">
                 IME Email Segregation System
             </h1>
 
+            <p class="text-center text-muted mb-4">
+                Automated Classification, Extraction and Recommendation System
+            </p>
+
             <form action="/upload" method="POST" enctype="multipart/form-data">
 
-                <div class="mb-3">
+                <div class="mb-4">
 
-                    <label class="form-label">
+                    <label class="form-label fw-bold">
                         Upload Email File
                     </label>
 
@@ -36,29 +41,77 @@
 
                 </div>
 
-                <button
-                    type="submit"
-                    class="btn btn-primary">
+                <div class="d-grid mb-4">
 
-                    Process Email
+                    <button
+                        type="submit"
+                        class="btn btn-primary btn-lg">
 
-                </button>
+                        Process Email
+
+                    </button>
+
+                </div>
 
             </form>
 
             <hr>
 
-            <a href="/dashboard" class="btn btn-success">
-                Dashboard
-            </a>
+            <h4 class="text-center mb-4">
+                Quick Actions
+            </h4>
 
-            <a href="/records" class="btn btn-secondary">
-                Records
-            </a>
+            <div class="row g-3">
 
-            <a href="/matches" class="btn btn-warning">
-                Matches
-            </a>
+                <div class="col-md-4">
+
+                    <a
+                        href="/dashboard"
+                        class="btn btn-success w-100 py-3">
+
+                        Dashboard
+
+                    </a>
+
+                </div>
+
+                <div class="col-md-4">
+
+                    <a
+                        href="/records"
+                        class="btn btn-info w-100 py-3 text-white">
+
+                        View Records
+
+                    </a>
+
+                </div>
+
+                <div class="col-md-4">
+
+                    <a
+                        href="/recommendations"
+                        class="btn btn-secondary w-100 py-3">
+
+                        Recommendations
+
+                    </a>
+
+                </div>
+
+                <div class="col-md-12">
+
+                    <a
+                        href="/matches"
+                        class="btn btn-warning w-100 py-3">
+
+                        Matches
+
+                    </a>
+
+                </div>
+
+            </div>
 
         </div>
 
@@ -67,4 +120,5 @@
 </div>
 
 </body>
+
 </html>

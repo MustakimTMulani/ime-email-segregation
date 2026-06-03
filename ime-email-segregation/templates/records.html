@@ -1,73 +1,219 @@
 <!DOCTYPE html>
 <html>
+
 <head>
+
     <title>Stored Records</title>
+
+    <style>
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            background: #f4f6f9;
+        }
+
+        h1 {
+            color: #2c3e50;
+        }
+
+        .search-box {
+            margin-bottom: 20px;
+        }
+
+        input[type=text] {
+            padding: 10px;
+            width: 300px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        button {
+            padding: 10px 15px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #2980b9;
+        }
+
+        .summary {
+            background: white;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 2px 8px rgba(0,0,0,0.1);
+            width: 220px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            box-shadow: 0px 2px 8px rgba(0,0,0,0.1);
+        }
+
+        th {
+            background: #3498db;
+            color: white;
+            padding: 12px;
+        }
+
+        td {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+            text-align: center;
+        }
+
+        tr:hover {
+            background: #f8f9fa;
+        }
+
+        .badge {
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 12px;
+        }
+
+        .tc {
+            background: #27ae60;
+        }
+
+        .vc {
+            background: #f39c12;
+        }
+
+        .tonnage {
+            background: #8e44ad;
+        }
+
+        .btn {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 15px;
+            background: #3498db;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+
+    </style>
+
 </head>
 
 <body>
 
-<h1>Stored Vessel Records</h1>
+    <h1>Stored Vessel Records</h1>
 
-<form method="GET">
+    <div class="summary">
 
-    <input
-        type="text"
-        name="search"
-        placeholder="Search vessel or port">
+        <h3>Total Records</h3>
 
-    <button type="submit">
-        Search
-    </button>
+        <h2>{{ records|length }}</h2>
 
-</form>
+    </div>
 
-<br>
+    <form method="GET" class="search-box">
 
-<table border="1">
+        <input
+            type="text"
+            name="search"
+            placeholder="Search vessel, cargo or port">
 
-<tr>
-    <th>ID</th>
-    <th>Category</th>
+        <button type="submit">
 
-    <th>Vessel Name</th>
-    <th>Vessel Size</th>
-    <th>Open Port</th>
+            Search
 
-    <th>Loading Port</th>
-    <th>Discharge Port</th>
-    <th>Laycan</th>
+        </button>
 
-    <th>Delivery Port</th>
-    <th>Redelivery Port</th>
-    <th>Duration</th>
-</tr>
+    </form>
 
-    {% for row in records %}
+    <table>
 
-<tr>
-    <td>{{ row.id }}</td>
-    <td>{{ row.category }}</td>
+        <tr>
 
-    <td>{{ row.vessel_name }}</td>
-    <td>{{ row.vessel_size }}</td>
-    <td>{{ row.open_port }}</td>
+            <th>ID</th>
+            <th>Category</th>
+            <th>Cargo Name</th>
 
-    <td>{{ row.loading_port }}</td>
-    <td>{{ row.discharge_port }}</td>
-    <td>{{ row.laycan }}</td>
+            <th>Vessel Name</th>
+            <th>Vessel Size</th>
+            <th>Open Port</th>
 
-    <td>{{ row.delivery_port }}</td>
-    <td>{{ row.redelivery_port }}</td>
-    <td>{{ row.duration }}</td>
-</tr>
+            <th>Loading Port</th>
+            <th>Discharge Port</th>
+            <th>Laycan</th>
 
-    {% endfor %}
+            <th>Delivery Port</th>
+            <th>Redelivery Port</th>
+            <th>Duration</th>
 
-</table>
+        </tr>
 
-<br>
+        {% for row in records %}
 
-<a href="/">Upload Another Email</a>
+        <tr>
+
+            <td>{{ row.id }}</td>
+
+            <td>
+
+                {% if row.category == "Cargo TC" %}
+
+                    <span class="badge tc">
+                        Cargo TC
+                    </span>
+
+                {% elif row.category == "Cargo VC" %}
+
+                    <span class="badge vc">
+                        Cargo VC
+                    </span>
+
+                {% elif row.category == "Tonnage" %}
+
+                    <span class="badge tonnage">
+                        Tonnage
+                    </span>
+
+                {% else %}
+
+                    {{ row.category }}
+
+                {% endif %}
+
+            </td>
+            
+            <td>{{ row.cargo_name or "-" }}</td>
+            <td>{{ row.vessel_name or "-" }}</td>
+            <td>{{ row.vessel_size or "-" }}</td>
+            <td>{{ row.open_port or "-" }}</td>
+
+            <td>{{ row.loading_port or "-" }}</td>
+            <td>{{ row.discharge_port or "-" }}</td>
+            <td>{{ row.laycan or "-" }}</td>
+
+            <td>{{ row.delivery_port or "-" }}</td>
+            <td>{{ row.redelivery_port or "-" }}</td>
+            <td>{{ row.duration or "-" }}</td>
+
+        </tr>
+
+        {% endfor %}
+
+    </table>
+
+    <a href="/" class="btn">
+
+        Upload Another Email
+
+    </a>
 
 </body>
+
 </html>

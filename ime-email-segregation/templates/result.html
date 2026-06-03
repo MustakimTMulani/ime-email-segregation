@@ -1,25 +1,113 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-    <title>Result</title>
+
+    <title>Extraction Result</title>
+
+    <style>
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            background-color: #f4f6f9;
+        }
+
+        h1 {
+            color: #2c3e50;
+        }
+
+        .card {
+            background: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .record {
+            background: #fafafa;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-left: 4px solid #3498db;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 10px 15px;
+            background: #3498db;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+
+        .message {
+            color: #e67e22;
+            font-weight: bold;
+        }
+
+    </style>
+
 </head>
+
 <body>
 
-<h1>Classification Result</h1>
+    <h1>Classification Result</h1>
 
-<h2>Category: {{ category }}</h2>
+    <div class="card">
 
-<h3>Extracted Data</h3>
+        <h2>Category: {{ category }}</h2>
 
-<ul>
-    {% for key, value in extracted_data.items() %}
-        <li>
-            <b>{{ key }}</b> : {{ value }}
-        </li>
-    {% endfor %}
-</ul>
+    </div>
 
-<a href="/">Upload Another Email</a>
+    <div class="card">
+
+        <h2>Extracted Data</h2>
+
+        {% if extracted_data %}
+
+            {% for record in extracted_data %}
+
+                <div class="record">
+
+                    {% if record is mapping %}
+
+                        {% for key, value in record.items() %}
+
+                            <p>
+                                <strong>
+                                    {{ key.replace('_', ' ').title() }}
+                                </strong>
+                                :
+                                {{ value }}
+                            </p>
+
+                        {% endfor %}
+
+                    {% else %}
+
+                        <p class="message">
+                            {{ record }}
+                        </p>
+
+                    {% endif %}
+
+                </div>
+
+            {% endfor %}
+
+        {% else %}
+
+            <p>No records extracted.</p>
+
+        {% endif %}
+
+    </div>
+
+    <a href="/" class="btn">
+        Upload Another Email
+    </a>
 
 </body>
+
 </html>
